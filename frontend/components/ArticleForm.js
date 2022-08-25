@@ -5,14 +5,13 @@ const initialFormValues = { title: '', text: '', topic: '' }
 
 export default function ArticleForm(props) {
   const [values, setValues] = useState(initialFormValues)
-  // ✨ where are my props? Destructure them here
+  const { currentArticle, setCurrentArticleId, postArticle, updateArticle } = props
 
   useEffect(() => {
-    // ✨ implement
-    // Every time the `currentArticle` prop changes, we should check it for truthiness:
-    // if it's truthy, we should set its title, text and topic into the corresponding
-    // values of the form. If it's not, we should reset the form back to initial values.
-  })
+    if(currentArticle) {
+      setValues({...currentArticle})
+    }
+  }, [currentArticle])
 
   const onChange = evt => {
     const { id, value } = evt.target
@@ -21,19 +20,25 @@ export default function ArticleForm(props) {
 
   const onSubmit = evt => {
     evt.preventDefault()
-    // ✨ implement
-    // We must submit a new post or update an existing one,
-    // depending on the truthyness of the `currentArticle` prop.
+
+    const form = {
+      title: values.title.trim(),
+      text: values.text.trim(),
+      topic: values.topic
+    }
+
+    setValues(initialFormValues)
+    currentArticle ? updateArticle({article_id: currentArticle.article_id, article: {...form, article_id: currentArticle.article_id}}) : postArticle(form);
+    setCurrentArticleId('')
+
   }
 
   const isDisabled = () => {
-    // ✨ implement
-    // Make sure the inputs have some values
+    if(values.title.length && values.text.length && values.topic.length ) return false;
+    return true
   }
 
   return (
-    // ✨ fix the JSX: make the heading display either "Edit" or "Create"
-    // and replace Function.prototype with the correct function
     <form id="form" onSubmit={onSubmit}>
       <h2>Create Article</h2>
       <input
@@ -64,7 +69,6 @@ export default function ArticleForm(props) {
   )
 }
 
-// 🔥 No touchy: LoginForm expects the following props exactly:
 ArticleForm.propTypes = {
   postArticle: PT.func.isRequired,
   updateArticle: PT.func.isRequired,
